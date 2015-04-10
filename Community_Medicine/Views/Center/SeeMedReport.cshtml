@@ -1,0 +1,40 @@
+﻿@using Microsoft.AspNet.Identity
+@model Community_Medicine.Models.MedAmountDictionary
+
+
+@{
+    ViewBag.Title = "See Medicine Report";
+}
+
+<h2>See Medicine Stock of @User.Identity.GetUserName()</h2>
+
+<div >
+    
+    <table class="table table-striped">
+        
+        <thead>
+            <tr>
+                <td class="lead">
+                    Medicine Name
+                </td>
+                <td class="lead">
+                    Quantity
+                </td>
+            </tr>
+        </thead>
+        
+        <tbody>
+            @foreach (string key in Model.medicineAmount.Keys) {
+
+                <tr>
+                    <td>@key</td>
+                    <td>@Model.medicineAmount[key]</td>
+                </tr>
+                
+            }
+        </tbody>
+    </table>
+
+    
+</div>
+

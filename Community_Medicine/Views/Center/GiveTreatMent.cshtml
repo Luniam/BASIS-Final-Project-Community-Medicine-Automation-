@@ -1,0 +1,109 @@
+﻿
+@{
+    ViewBag.Title = "GiveTreatMent";
+}
+
+<h2>GiveTreatment</h2>
+
+<div ng-app ="myApp">
+    <div ng-controller ="myCtrl">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <h4 class="col-md-2">Voter Id</h4>
+                <div class="col-md-10">
+                    <input type="text" ng-model="idvoter" />
+                    
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <h4 class="col-md-2">Name</h4>
+                <div class="col-md-10">
+                    <input type="text" ng-model="patient.Name"  />
+
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <h4 class="col-md-2">Address</h4>
+                <div class="col-md-10">
+                    <textarea cols="22" rows="5" ng-model="patient.Address"></textarea>
+
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <h4 class="col-md-2">Birthday</h4>
+                <div class="col-md-10">
+                    <input type="text" ng-model="patient.BirthDay"/>
+
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" ng-click="getinf(idvoter)" value="Show Details" class="btn btn-default" />
+                    @Html.ActionLink("Show All History", "SeeMedReport", "Center")
+                </div>
+            </div>
+           
+            
+            <div class="form-group">
+                <h4 class="col-md-2">Observations</h4>
+                <div class="col-md-10">
+                    <textarea cols="22" rows="5" ng-model="observations"></textarea>
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <h4 class="col-md-2">Date</h4>
+                <div class="col-md-10">
+                    <input type="date" ng-model="currentdate" />
+
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section scripts
+{
+    
+    <script src="~/Scripts/angular.min.js"></script>
+    
+    <script>
+        var myApp = angular.module("myApp", []);
+
+        myApp.controller("myCtrl", function($scope, $http) {
+
+
+            $scope.patient = [];
+
+            $scope.getinf = function(idvoter) {
+
+                $http({
+                    traditional: true,
+                    url: '@Url.Action("GetVoterInfo", "Center")',
+                    method: "POST",
+                    data: JSON.stringify({ 'voterid': idvoter }),
+                    dataType: "json"
+                }).success(function (data) {
+
+                    $scope.patient = data;
+                    console.log($scope.patient);
+
+                }).error(function (data) {
+                    alert("error");
+                });
+
+
+            };
+
+
+        });
+    </script>
+
+}
+

@@ -1,0 +1,204 @@
+﻿
+@model Community_Medicine.Models.CenterMedicineLinker
+
+@{
+    ViewBag.Title = "Send Medicine";
+    string customMessage = "", customStyle = "";
+    if (ViewBag.Message == "Successful")
+    {
+        customMessage = "Successfully sent";
+        customStyle = "alert alert-success";
+
+    }
+}
+
+<h2>Send Medicine</h2>
+
+<div ng-app ="myApp">
+    <div ng-controller ="myCtrl">
+        
+        <form>
+
+            @*@using (Html.BeginForm())
+            {*@
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+
+                <h4>Send</h4>
+                <hr />
+                @Html.ValidationSummary(true)
+                
+                
+                <div class="form-group">
+                    <h4 class="col-md-2">Choose District</h4>
+                    <div class="col-md-10">
+                        <select id="distid" name="distid" ng-model="dist" ng-change="GetThana(dist)" ng-options="dist.Name for dist in districts" class="form-control">
+                            <option value="">Select a District</option>
+                        </select>
+                       
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <h4 class="col-md-2">Choose Thana</h4>
+                    <div class="col-md-10">
+
+                        <select id="thanaid" name="thanaid" ng-model="thana" ng-change="GetCenter(thana, dist)" ng-options="thana.Name for thana in thanas" class="form-control">
+                            <option value="">Select a Thana</option>
+                        </select>
+                        
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <h4 class="col-md-2">Choose Center</h4>
+                    <div class="col-md-10">
+
+                        <select  ng-model="center" @*ng-change="GetThanaId(thana)"*@ ng-options="center.Name for center in centers" class="form-control">
+                            <option value="">Select a Center</option>
+                        </select>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <h4 class="col-md-2">Choose Medicine</h4>
+                    <div class="col-md-10">
+
+                        <select ng-model="medicine" @*ng-change="GetThanaId(thana)"*@ ng-options="medicine.Name for medicine in medicines" class="form-control">
+                            <option value="">Select a Medicine</option>
+                        </select>
+
+                    </div>
+                </div>
+                
+
+                <div class="form-group">
+                    <h4 class="col-md-2">Quantity</h4>
+                    <div class="col-md-10">
+                        <input type="number"  ng-model="qty" />
+                        @Html.ValidationMessageFor(model => model.Qty)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" ng-click="sendmeds(center, medicine, qty)" value="Send" class="btn btn-default" />
+                    </div>
+                </div>
+
+
+            </div>
+
+            <h4 class=@customStyle>@customMessage</h4>
+            @*}*@
+        </form>
+
+    </div>
+</div>
+
+
+
+<div>
+    @Html.ActionLink("Back Home", "Index", "Home")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/angular.min.js"></script>
+    
+    
+    <script>
+        var myApp = angular.module("myApp", []);
+
+        myApp.controller("myCtrl", function($scope, $http) {
+
+            $scope.districts = [];
+            $scope.thanas = [];
+            $scope.centers = [];
+            $scope.medicines = [];
+
+            //console.log("hello");
+            $http.get('@Url.Action("GetAllDistricts", "Center")').
+                success(function(data, status, headers, config) {
+                    $scope.districts = data;
+
+                }).
+                error(function(data, status, headers, config) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                });
+
+
+            $http.get('@Url.Action("GetAllMeds", "Medicine")').
+                success(function (data, status, headers, config) {
+                    $scope.medicines = data;
+
+                }).
+                error(function (data, status, headers, config) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                });
+
+            $scope.GetThana = function(dist) {
+                $http({
+                    traditional: true,
+                    url: '@Url.Action("GetAllThanas", "Center")',
+                    method: "POST",
+                    data: JSON.stringify({ 'distid': dist.Id }),
+                    dataType: "json"
+                }).success(function(data) {
+
+                    $scope.thanas = data;
+                    //$scope.distobject = [];
+                    //$scope.distobject.push(dist.Id);
+                    //$scope.nameObject = [];
+                    //$scope.nameObject.push($scope.nama);
+
+                }).error(function(data) {
+
+                });
+
+            };
+
+
+            $scope.GetCenter = function(thana, dist) {
+                $http({
+                    traditional: true,
+                    url: '@Url.Action("GetAllCenters", "Center")',
+                    method: "POST",
+                    data: JSON.stringify({ 'distid': dist.Id, 'thanaid': thana.Id }),
+                    dataType: "json"
+                }).success(function(data) {
+
+                    $scope.centers = data;
+
+                }).error(function(data) {
+
+                });
+
+            };
+
+
+            $scope.sendmeds = function (center, medicine, qty) {
+                $http({
+                    traditional: true,
+                    url: '@Url.Action("SendMeds", "Medicine")',
+                    method: "POST",
+                    data: JSON.stringify({ 'centerid': center.Id, 'medid': medicine.Id, 'qty': qty }),
+                    dataType: "json"
+                }).success(function (data) {
+
+                    alert("Medicine successfully sent");
+                }).error(function () {
+                    alert("Sorry could not send the medicine");
+                });
+            };
+
+
+        });
+    </script>
+
+
+}

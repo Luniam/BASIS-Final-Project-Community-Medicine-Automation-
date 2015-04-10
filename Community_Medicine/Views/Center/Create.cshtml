@@ -1,0 +1,185 @@
+﻿@model Community_Medicine.Models.Center
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+
+
+<div ng-app ="myApp">
+    <div ng-controller ="myCtrl">
+     
+        <form>
+        @*@using (Html.BeginForm())
+        {*@
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(false)
+
+            <div class="form-horizontal">
+                <h4>Center</h4>
+                <hr />
+                @Html.ValidationSummary(true)
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Name, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @*@Html.EditorFor(model => model.Name, new { @id = "name" })*@
+                        <input type="text" id="name" name="name" ng-model ="naam"/>
+                        @Html.ValidationMessageFor(model => model.Name)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DistrictId, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <select id="distid" name="distid" ng-model="dist" ng-change="GetThana(dist)" ng-options="dist.Name for dist in districts" class="form-control">
+                            <option value="">Select a District</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.DistrictId)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ThanaId, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+
+                        <select id="thanaid" name="thanaid" ng-model="thana" @*ng-change="GetThanaId(thana)"*@ ng-options="thana.Name for thana in thanas" class="form-control">
+                            <option value="">Select a Thana</option>
+                        </select>
+                        @Html.ValidationMessageFor(model => model.ThanaId)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        @*<input type="submit" value="Create" class="btn btn-default" />*@
+                        <input type="submit" ng-click ="getall(naam, dist, thana)" value="Create" class="btn btn-default" />
+                    </div>
+                </div>
+            </div>
+
+
+        @*}*@
+        </form>    
+    </div>
+    
+    @if (TempData["Username"] != null)
+        {
+            <h4>Your new Center has been created</h4>
+            <h4>The center name is @TempData["Username"]</h4>
+        }
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script src="~/Scripts/angular.min.js"></script>
+    
+    <script>
+        var myApp = angular.module("myApp", []);
+
+        myApp.controller("myCtrl", function($scope, $http) {
+
+            $scope.districts = [];
+            $scope.thanas = [];
+            $scope.distobject = [];
+            $scope.thanaobject = [];
+            $scope.nameObject = [];
+            //console.log("hello");
+            $http.get('@Url.Action("GetAllDistricts", "Center")').
+                success(function(data, status, headers, config) {
+                    $scope.districts = data;
+
+                }).
+                error(function(data, status, headers, config) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                });
+
+            $scope.GetThana = function(dist) {
+                $http({
+                    traditional: true,
+                    url: '@Url.Action("GetAllThanas", "Center")',
+                    method: "POST",
+                    data: JSON.stringify({ 'distId': dist.Id }),
+                    dataType: "json"
+                }).success(function(data) {
+
+                    $scope.thanas = data;
+                    //$scope.distobject = [];
+                    //$scope.distobject.push(dist.Id);
+                    //$scope.nameObject = [];
+                    
+
+                }).error(function(data) {
+
+                });
+            };
+
+            @*$scope.MySubmit = function() {
+                //console.log(aDepartment);
+                $http({
+                    traditional: true,
+                    url: '@Url.Action("Create", "Center")',
+                    method: "POST",
+                    data: {distid : $scope.distsid[0].Id},
+                    dataType: "json"
+                }).success(function(data) {
+                    alert("insert success");
+
+
+                }).error(function(data) {
+
+                });
+            };*@
+
+            //$scope.GetThanaId = function(thana, name) {
+            //    $scope.thanaobject = [];
+            //    $scope.thanaobject.push(thana.Id);
+            //    $scope.nameObject = [];
+            //    $scope.nameObject.push($scope.nama);
+            //};
+
+      //      $scope.testingmy = function() {
+      //          $http.post('/Center/Test', { 'name' : $scope.nameObject[0],  'distid': $scope.distobject[0], 'thanaid' : $scope.thanaobject[0] }).
+      //              success(function (data, status, headers, config) {
+      //// this callback will be called asynchronously
+      //                  // when the response is available
+      //                  alert("Center creation successful\nYour username is : " + $scope.nameObject[0] + "\nYour password is : password");
+                        
+      //              }).
+      //          error(function (data, status, headers, config) {
+      //// called asynchronously if an error occurs
+      //              // or server returns response with an error status.
+      //              alert("Could not create center, please try again.");
+
+      //          });
+            //      };
+
+
+            $scope.getall = function(naam, dist, thana) {
+                $http({
+                    traditional: true,
+                    url: '@Url.Action("Test", "Center")',
+                    method: "POST",
+                    data: JSON.stringify({ 'name': naam, 'distid': dist.Id, 'thanaid': thana.Id }),
+                    dataType: "json"
+                }).success(function (data) {
+
+                    alert("Center successfully created.\nYour center user name is " + naam + "\nYour password is : password");
+
+                    var url = '@Url.Action("Index", "Center")';
+                    window.location.href = url;
+                }).error(function () {
+                });
+            };
+        });
+
+
+    </script>
+    
+
+}
